@@ -1,4 +1,9 @@
-package mate.academy.lib;
+package mate.academy.dao;
+
+import mate.academy.model.Book;
+import mate.academy.lib.Dao;
+import mate.academy.exception.DataProcessingException;
+import mate.academy.util.ConnectionUtil;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -8,22 +13,21 @@ import java.util.Optional;
 
 @Dao
 public class BookDaoImpl implements BookDao {
+    @Override
     public Book create(Book book) {
         String query = "INSERT INTO books (title, price) VALUES (?, ?)";
         try (Connection connection = ConnectionUtil.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) ;
+             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
         statement.setString(1, book.getTitle());
         statement.setBigDecimal(2, book.getPrice());
         statement.executeUpdate();
-        ResultSet resultSet = statement.getGeneratedKeys();
-        if (resultSet.next()) {
-            book.setId(resultSet.getObject(1, Long.class));
+        try (ResultSet resultSet = statement.getGeneratedKeys()) {
+            if (resultSet.next()) {
+                book.setId(resultSet.getObject(1, Long.class));
+            }
         }
         return book;
-    } catch(
-    SQLException e)
-
-    {
+    } catch(SQLException e) {
         throw new DataProcessingException("Can't insert book to DB: " + book, e);
     }
 
@@ -54,8 +58,8 @@ public class BookDaoImpl implements BookDao {
         String query = "SELECT id, title, price FROM books";
         List<Book> books = new ArrayList<>();
         try (Connection connection = ConnectionUtil.getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(query)) {
+        PreparedStatement statement = connection.prepareStatement(query);
+        ResultSet resultSet = statement.executeQuery()) {
             while(resultSet.next()) {
                 Book book = new Book();
                 book.setId(resultSet.getObject("id", Long.class));
