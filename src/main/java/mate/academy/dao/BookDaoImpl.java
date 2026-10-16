@@ -1,8 +1,5 @@
 package mate.academy.dao;
 
-import mate.academy.lib.Dao;
-import mate.academy.exception.DataProcessingException;
-import mate.academy.model.Book;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +9,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import mate.academy.lib.Dao;
+import mate.academy.exception.DataProcessingException;
+import mate.academy.model.Book;
 import mate.academy.util.ConnectionUtil;
 
 @Dao
@@ -20,31 +20,31 @@ public class BookDaoImpl implements BookDao {
     public Book create(Book book) {
         String query = "INSERT INTO books (title, price) VALUES (?, ?)";
         try (Connection connection = ConnectionUtil.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query,
+                PreparedStatement statement = connection.prepareStatement(query,
                      Statement.RETURN_GENERATED_KEYS)) {
-        statement.setString(1, book.getTitle());
-        statement.setBigDecimal(2, book.getPrice());
-        statement.executeUpdate();
-        try (ResultSet resultSet = statement.getGeneratedKeys()) {
-            if (resultSet.next()) {
-                book.setId(resultSet.getObject(1, Long.class));
+            statement.setString(1, book.getTitle());
+            statement.setBigDecimal(2, book.getPrice());
+            statement.executeUpdate();
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    book.setId(resultSet.getObject(1, Long.class));
+                }
             }
+            return book;
+        } catch(SQLException e) {
+            throw new DataProcessingException("Can't insert book to DB: " + book, e);
         }
-        return book;
-    } catch(SQLException e) {
-        throw new DataProcessingException("Can't insert book to DB: " + book, e);
-    }
 
-}
+    }
 
     @Override
     public Optional<Book> findById(Long id) {
         String query = "SELECT id, title, price FROM books WHERE id = ?";
         try (Connection connection = ConnectionUtil.getConnection();
-        PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setLong(1, id);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
+             PreparedStatement statement = connection.prepareStatement(query)) {
+           statement.setLong(1, id);
+           ResultSet resultSet = statement.executeQuery();
+           if (resultSet.next()) {
                 Book book = new Book();
                 book.setId(resultSet.getObject("id", Long.class));
                 book.setTitle(resultSet.getString("title"));
