@@ -1,15 +1,18 @@
 package mate.academy.dao;
 
-import mate.academy.model.Book;
 import mate.academy.lib.Dao;
 import mate.academy.exception.DataProcessingException;
-import mate.academy.util.ConnectionUtil;
-
+import mate.academy.model.Book;
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import mate.academy.util.ConnectionUtil;
 
 @Dao
 public class BookDaoImpl implements BookDao {
@@ -17,7 +20,8 @@ public class BookDaoImpl implements BookDao {
     public Book create(Book book) {
         String query = "INSERT INTO books (title, price) VALUES (?, ?)";
         try (Connection connection = ConnectionUtil.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement(query,
+                     Statement.RETURN_GENERATED_KEYS)) {
         statement.setString(1, book.getTitle());
         statement.setBigDecimal(2, book.getPrice());
         statement.executeUpdate();
@@ -60,7 +64,7 @@ public class BookDaoImpl implements BookDao {
         try (Connection connection = ConnectionUtil.getConnection();
         PreparedStatement statement = connection.prepareStatement(query);
         ResultSet resultSet = statement.executeQuery()) {
-            while(resultSet.next()) {
+            while (resultSet.next()) {
                 Book book = new Book();
                 book.setId(resultSet.getObject("id", Long.class));
                 book.setTitle(resultSet.getString("title"));
@@ -76,7 +80,7 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Book update(Book book) {
         String query = "UPDATE books SET title = ?, price = ? WHERE id = ?";
-        try(Connection connection = ConnectionUtil.getConnection();
+        try (Connection connection = ConnectionUtil.getConnection();
             PreparedStatement statement = connection.prepareStatement(query)) {
            statement.setString(1, book.getTitle());
            statement.setBigDecimal(2, book.getPrice());

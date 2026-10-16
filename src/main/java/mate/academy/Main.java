@@ -1,15 +1,15 @@
 package mate.academy;
 
-import mate.academy.model.Book;
 import mate.academy.dao.BookDao;
 import mate.academy.lib.Injector;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import mate.academy.model.Book;
 
 public class Main {
     private static final Injector injector = Injector.getInstance("org.example");
+
     public static void main(String[] args) {
         BookDao bookDao = (BookDao) injector.getInstance(BookDao.class);
         Book book = new Book("Java Programming", BigDecimal.valueOf(650.00));
