@@ -24,8 +24,8 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Book create(Book book) {
         try (Connection connection = ConnectionUtil.getConnection();
-                PreparedStatement statement = connection.prepareStatement
-                     (CREATE_BOOK, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement statement = connection.prepareStatement(
+                        CREATE_BOOK, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, book.getTitle());
             statement.setBigDecimal(2, book.getPrice());
             statement.executeUpdate();
@@ -95,8 +95,8 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
-    private PreparedStatement createFindByIdStatement
-            (Connection connection, Long id) throws SQLException {
+    private PreparedStatement createFindByIdStatement(
+            Connection connection, Long id) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(GET_BOOK_BY_ID);
         statement.setLong(1, id);
         return statement;
